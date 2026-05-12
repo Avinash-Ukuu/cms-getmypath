@@ -68,7 +68,7 @@ class PaymentController extends Controller
             'batch_time' => $request->batch_time,
             'batch_days' => $request->batch_days,
             'country' => $request->country,
-            'currency' => 'INR',
+            'currency' => $request->currency,
             'gateway' => 'razorpay',
             'transaction_id' => $request->razorpay_payment_id,
             'amount' => $request->amount,
@@ -77,7 +77,7 @@ class PaymentController extends Controller
         ]);
 
         Mail::to($payment->email)->send(new PaymentSuccessMail($payment));
-        
+
         return response()->json([
             'message' => 'Payment Success',
             'data' => $payment,
