@@ -32,15 +32,7 @@
         {{ $payment->amount }}
     </p>
 
-    <p>
-        <strong>Transaction ID:</strong>
-        {{ $payment->transaction_id }}
-    </p>
 
-    <p>
-        <strong>Payment Gateway:</strong>
-        {{ ucfirst($payment->gateway) }}
-    </p>
 
     <hr>
 
