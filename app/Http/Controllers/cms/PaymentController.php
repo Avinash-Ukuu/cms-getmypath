@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentSuccessMail;
 
 class PaymentController extends Controller
 {
@@ -24,62 +26,30 @@ class PaymentController extends Controller
 
         $country = strtolower($request->country);
 
-        // INDIA → RAZORPAY
+        $currency = 'USD';
+
         if ($country === 'india') {
 
             $currency = 'INR';
-
-            $api = new Api(
-                config('services.razorpay.key'),
-                config('services.razorpay.secret')
-            );
-
-            $order = $api->order->create([
-                'receipt' => 'receipt_' . time(),
-                'amount' => $request->amount * 100,
-                'currency' => $currency,
-            ]);
-
-            return response()->json([
-                'gateway' => 'razorpay',
-                'currency' => $currency,
-                'order' => $order,
-                'key' => config('services.razorpay.key'),
-            ]);
         }
 
-        // OTHER COUNTRIES → STRIPE
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
 
-        $currency = 'USD';
-
-        if ($country === 'dubai') {
-            $currency = 'AED';
-        }
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => strtolower($currency),
-                    'product_data' => [
-                        'name' => $request->course_name,
-                    ],
-                    'unit_amount' => $request->amount * 100,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => env('APP_URL') . '/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => env('APP_URL') . '/cancel',
+        $order = $api->order->create([
+            'receipt'   => 'receipt_' . time(),
+            'amount'    => $request->amount * 100,
+            'currency'  => $currency,
         ]);
 
+
         return response()->json([
-            'gateway' => 'stripe',
-            'currency' => $currency,
-            'session_id' => $session->id,
-            'checkout_url' => $session->url,
+            'gateway'   => 'razorpay',
+            'currency'  => $currency,
+            'order'     => $order,
+            'key'       => config('services.razorpay.key'),
         ]);
     }
     // SAVE RAZORPAY SUCCESS
@@ -106,6 +76,8 @@ class PaymentController extends Controller
             'response' => $request->all(),
         ]);
 
+        Mail::to($payment->email)->send(new PaymentSuccessMail($payment));
+        
         return response()->json([
             'message' => 'Payment Success',
             'data' => $payment,
@@ -114,27 +86,45 @@ class PaymentController extends Controller
 
     // SAVE STRIPE SUCCESS
 
-    public function stripeSuccess(Request $request)
-    {
-        Stripe::setApiKey(config('services.stripe.secret'));
+    // public function stripeSuccess(Request $request)
+    // {
+    //     Stripe::setApiKey(config('services.stripe.secret'));
 
-        $session = Session::retrieve($request->session_id);
+    //     $session = Session::retrieve($request->session_id);
 
-        $payment = Payment::create([
-            'user_id' => auth()->id(),
-            'course_id' => $request->course_id,
-            'country' => $request->country,
-            'currency' => strtoupper($session->currency),
-            'gateway' => 'stripe',
-            'transaction_id' => $session->payment_intent,
-            'amount' => $session->amount_total / 100,
-            'status' => 'success',
-            'response' => (array)$session,
-        ]);
+    //     $payment = Payment::create([
 
-        return response()->json([
-            'message' => 'Payment Success',
-            'data' => $payment,
-        ]);
-    }
+    //         // USER DATA
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'phone' => $request->phone,
+
+    //         // COURSE DATA
+    //         'course_name' => $request->course_name,
+    //         'course_mode' => $request->course_mode,
+    //         'batch_type' => $request->batch_type,
+    //         'batch_start' => $request->batch_start,
+    //         'batch_duration' => $request->batch_duration,
+    //         'batch_time' => $request->batch_time,
+    //         'batch_days' => $request->batch_days,
+
+    //         // PAYMENT DATA
+    //         'country' => $request->country,
+    //         'currency' => strtoupper($session->currency),
+    //         'gateway' => 'stripe',
+
+    //         'transaction_id' => $session->payment_intent,
+
+    //         'amount' => $session->amount_total / 100,
+
+    //         'status' => 'success',
+
+    //         'response' => (array) $session,
+    //     ]);
+
+    //     return response()->json([
+    //         'message' => 'Stripe Payment Success',
+    //         'data' => $payment,
+    //     ]);
+    // }
 }
