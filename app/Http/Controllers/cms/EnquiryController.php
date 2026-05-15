@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\cms;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EnquiryMail;
 use App\Models\Enquiry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
