@@ -50,6 +50,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="{{ route('cms.enquiry.index') }}" class="nav-link">
+                        <i class="nav-icon fa fa-mail-bulk"></i>
+                        <p class="text">Enquiry</p>
+                    </a>
+                </li>
+
 
             </ul>
         </nav>

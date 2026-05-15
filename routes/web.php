@@ -4,10 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect(route('login'));
-});
-Route::get('/test', function () {
-    return view('test');
+    return redirect(route('cms.dashboard'));
 });
 
 // Route::get('/dashboard', function () {

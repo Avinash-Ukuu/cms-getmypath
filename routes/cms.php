@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\cms\DashboardController;
+use App\Http\Controllers\cms\EnquiryController;
 use App\Http\Controllers\cms\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('cms')->name('cms.')->middleware(['auth'])->group(function () {
     Route::get('dashboard',         [DashboardController::class,'dashboard'])->name('dashboard');
     Route::get('/payment-data',     [DashboardController::class, 'paymentData'])->name('paymentData');
-
+    Route::get('/enquiry',          [EnquiryController::class, 'index'])->name('enquiry.index');
     //Profile and passwords
     Route::get('profile',           [UserController::class,'profile'])->name('profile');
     Route::put('update-profile',    [UserController::class,'updateProfile'])->name('updateProfile');
