@@ -57,7 +57,7 @@
             $('#paymentTable').DataTable({
                 processing: true,
                 ajax: "{{ url('/cms/payment-data') }}",
-
+                order: [[0, 'desc']],
                 columns: [
                     {
                         data: 'created_at'
