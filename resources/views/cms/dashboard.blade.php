@@ -22,6 +22,7 @@
                     <table id="paymentTable" class="table table-bordered table-striped">
                         <thead>
                             <tr>
+                                <th>Date</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -57,7 +58,11 @@
                 processing: true,
                 ajax: "{{ url('/cms/payment-data') }}",
 
-                columns: [{
+                columns: [
+                    {
+                        data: 'created_at'
+                    },
+                    {
                         data: 'name'
                     },
                     {
